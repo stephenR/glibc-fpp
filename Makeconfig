@@ -415,6 +415,8 @@ LDFLAGS.so += $(hashstyle-LDFLAGS)
 LDFLAGS-rtld += $(hashstyle-LDFLAGS)
 endif
 
+LDFLAGS.so += -lfpprotect
+
 # Command for linking programs with the C library.
 ifndef +link
 +link = $(CC) -nostdlib -nostartfiles -o $@ \
@@ -511,8 +513,12 @@ link-extra-libs-static = $(link-extra-libs)
 link-extra-libs-bounded = $(link-extra-libs)
 endif
 
+link-extra-libs += -lfpprotect
+link-extra-libs-static += -lfpprotect
+link-extra-libs-bounded += -lfpprotect
+
 # The static libraries.
-link-libc-static = -Wl,--start-group $(common-objpfx)libc.a $(static-gnulib) -Wl,--end-group
+link-libc-static = -Wl,--start-group $(common-objpfx)libc.a $(static-gnulib) -lfpprotect -Wl,--end-group
 link-libc-bounded = $(common-objpfx)libc_b.a $(gnulib) $(common-objpfx)libc_b.a
 
 ifndef gnulib

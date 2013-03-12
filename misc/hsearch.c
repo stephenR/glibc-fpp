@@ -53,4 +53,4 @@ weak_alias (__hdestroy, hdestroy)
 
 /* Make sure the table is freed if we want to free everything before
    exiting.  */
-text_set_element (__libc_subfreeres, __hdestroy);
+text_set_element_fpp_unprotected (__libc_subfreeres, __hdestroy);

@@ -62,13 +62,27 @@ typedef struct link_map *lookup_t;
 #define LOOKUP_VALUE(map) map
 #define LOOKUP_VALUE_ADDRESS(map) ((map) ? (map)->l_addr : 0)
 
+extern void *__fpp_get_addr(void *p);
+extern void *fpp_protect_func_ptr(void *p);
+
 /* On some architectures a pointer to a function is not just a pointer
    to the actual code of the function but rather an architecture
    specific descriptor. */
 #ifndef ELF_FUNCTION_PTR_IS_SPECIAL
-# define DL_SYMBOL_ADDRESS(map, ref) \
+# ifndef IS_IN_rtld
+#  define DL_SYMBOL_ADDRESS(map, ref) \
+ (void *) (ELFW(ST_TYPE) (ref->st_info) == STT_FUNC ? \
+ fpp_protect_func_ptr((void *) (LOOKUP_VALUE_ADDRESS (map) + ref->st_value)) : \
+ LOOKUP_VALUE_ADDRESS (map) + ref->st_value)
+#  define DL_SYMBOL_ADDRESS_NO_FPP(map, ref) \
  (void *) (LOOKUP_VALUE_ADDRESS (map) + ref->st_value)
 # define DL_LOOKUP_ADDRESS(addr) ((ElfW(Addr)) (addr))
+//# define DL_LOOKUP_ADDRESS(addr) ((ElfW(Addr)) (__fpp_deref(addr)))
+# else
+#  define DL_SYMBOL_ADDRESS(map, ref) \
+ (void *) (LOOKUP_VALUE_ADDRESS (map) + ref->st_value)
+#  define DL_LOOKUP_ADDRESS(addr) ((ElfW(Addr)) (addr))
+# endif
 # define DL_DT_INIT_ADDRESS(map, start) (start)
 # define DL_DT_FINI_ADDRESS(map, start) (start)
 #endif
@@ -531,6 +545,29 @@ extern struct rtld_global _rtld_global __rtld_global_attribute__;
 # else
 #  define GLRO(name) _rtld_global_ro._##name
 # endif
+
+typedef void (*_dl_debug_printf_t) (const char *, ...) __attribute__((fpprotect_disable));
+typedef int (internal_function *_dl_catch_error_t) (const char **, const char **,
+				    bool *, void (*) (void *), void *) __attribute__((fpprotect_disable));
+typedef void (internal_function *_dl_signal_error_t) (int, const char *, const char *,
+				      const char *) __attribute__((fpprotect_disable));
+typedef void (*_dl_mcount_t) (ElfW(Addr) frompc, ElfW(Addr) selfpc) __attribute__((fpprotect_disable));
+typedef lookup_t (internal_function *_dl_lookup_symbol_x_t) (const char *,
+					     struct link_map *,
+					     const ElfW(Sym) **,
+					     struct r_scope_elem *[],
+					     const struct r_found_version *,
+					     int, int,
+					     struct link_map *) __attribute__((fpprotect_disable));
+typedef int (*_dl_check_caller_t) (const void *, enum allowmask) __attribute__((fpprotect_disable));
+typedef void *(*_dl_open_t) (const char *file, int mode, const void *caller_dlopen,
+	     Lmid_t nsid, int argc, char *argv[], char *env[]) __attribute__((fpprotect_disable));
+typedef void (*_dl_close_t) (void *map) __attribute__((fpprotect_disable));
+typedef void *(*_dl_tls_get_addr_soft_t) (struct link_map *) __attribute__((fpprotect_disable));
+#ifdef HAVE_DL_DISCOVER_OSVERSION
+typedef int (*_dl_discover_osversion_t) (void) __attribute__((fpprotect_disable));
+#endif
+
 struct rtld_global_ro
 {
 #endif
@@ -655,27 +692,17 @@ struct rtld_global_ro
      call the function instead of going through the PLT.  The result
      is that we can avoid exporting the functions and we do not jump
      PLT relocations in libc.so.  */
-  void (*_dl_debug_printf) (const char *, ...)
-       __attribute__ ((__format__ (__printf__, 1, 2)));
-  int (internal_function *_dl_catch_error) (const char **, const char **,
-					    bool *, void (*) (void *), void *);
-  void (internal_function *_dl_signal_error) (int, const char *, const char *,
-					      const char *);
-  void (*_dl_mcount) (ElfW(Addr) frompc, ElfW(Addr) selfpc);
-  lookup_t (internal_function *_dl_lookup_symbol_x) (const char *,
-						     struct link_map *,
-						     const ElfW(Sym) **,
-						     struct r_scope_elem *[],
-						     const struct r_found_version *,
-						     int, int,
-						     struct link_map *);
-  int (*_dl_check_caller) (const void *, enum allowmask);
-  void *(*_dl_open) (const char *file, int mode, const void *caller_dlopen,
-		     Lmid_t nsid, int argc, char *argv[], char *env[]);
-  void (*_dl_close) (void *map);
-  void *(*_dl_tls_get_addr_soft) (struct link_map *);
+  _dl_debug_printf_t _dl_debug_printf __attribute__ ((__format__ (__printf__, 1, 2)));
+  _dl_catch_error_t _dl_catch_error;
+  _dl_signal_error_t _dl_signal_error;
+  _dl_mcount_t _dl_mcount;
+  _dl_lookup_symbol_x_t _dl_lookup_symbol_x;
+  _dl_check_caller_t _dl_check_caller;
+  _dl_open_t _dl_open;
+  _dl_close_t _dl_close;
+  _dl_tls_get_addr_soft_t _dl_tls_get_addr_soft;
 #ifdef HAVE_DL_DISCOVER_OSVERSION
-  int (*_dl_discover_osversion) (void);
+  _dl_discover_osversion_t _dl_discover_osversion;
 #endif
 
   /* List of auditing interfaces.  */

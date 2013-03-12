@@ -42,7 +42,7 @@ _dl_vdso_vsym (const char *name, const struct r_found_version *vers)
 						   vers, 0, 0, NULL);
 
       if (ref != NULL)
-	value = DL_SYMBOL_ADDRESS (result, ref);
+	value = DL_SYMBOL_ADDRESS_NO_FPP (result, ref);
     }
 
   return value;

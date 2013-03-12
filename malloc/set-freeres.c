@@ -39,7 +39,13 @@ __libc_freeres (void)
 
       _IO_cleanup ();
 
-      RUN_HOOK (__libc_subfreeres, ());
+      RUN_HOOK_FPP_UNPROTECTED (__libc_subfreeres, ());
+      //do {
+      //  void *const *__unbounded ptr;
+      //  for (ptr = (void *const *) symbol_set_first_element (__libc_subfreeres);
+      //       ! symbol_set_end_p (__libc_subfreeres, ptr); ++ptr)
+      //    (*(____libc_subfreeres_hook_function_t *) *ptr) ();
+      //} while (0);
 
       for (p = symbol_set_first_element (__libc_freeres_ptrs);
 	   ! symbol_set_end_p (__libc_freeres_ptrs, p); ++p)

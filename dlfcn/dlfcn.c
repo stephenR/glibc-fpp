@@ -30,7 +30,9 @@ init (int argc, char *argv[])
   __dlfcn_argv = argv;
 }
 
-static void (*const init_array []) (int argc, char *argv[])
+typedef void (*init_t) (int argc, char *argv) __attribute__((fpprotect_disable));
+
+static const init_t init_array[]
      __attribute__ ((section (".init_array"), aligned (sizeof (void *))))
      __attribute_used__ =
 {

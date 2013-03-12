@@ -40,7 +40,7 @@ __rpc_thread_destroy (void)
 #ifdef _LIBC_REENTRANT
 text_set_element (__libc_thread_subfreeres, __rpc_thread_destroy);
 #endif
-text_set_element (__libc_subfreeres, __rpc_thread_destroy);
+text_set_element_fpp_unprotected (__libc_subfreeres, __rpc_thread_destroy);
 
 
 /*

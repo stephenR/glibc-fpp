@@ -25,11 +25,14 @@
 
 #define ELF_MACHINE_IRELA	1
 
+typedef ElfW(Addr (*ifunc_t)(void)) __attribute__((fpprotect_disable));
+//typedef ElfW(Addr (*ifunc_t)(void));
+
 static inline ElfW(Addr)
 __attribute ((always_inline))
 elf_ifunc_invoke (ElfW(Addr) addr)
 {
-  return ((ElfW(Addr) (*) (void)) (addr)) ();
+  return ((ifunc_t) addr)();
 }
 
 static inline void

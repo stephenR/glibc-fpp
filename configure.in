@@ -1130,7 +1130,7 @@ extern int glibc_conftest_frobozz;
 void _start() { glibc_conftest_frobozz = 1; }
 EOF
 if ${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS \
-	    -nostartfiles -nostdlib \
+	    -nostartfiles -nostdlib -fno-fp-protect\
 	    -o conftest conftest.s conftest1.c 1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD; then
   libc_cv_asm_set_directive=yes
 else
@@ -1189,7 +1189,7 @@ EOF
   if ${CC-cc} -c $ASFLAGS conftest.s 1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD; then
     if AC_TRY_COMMAND([${CC-cc} $CFLAGS $LDFLAGS -shared
 				-o conftest.so conftest.o
-				-nostartfiles -nostdlib
+				-nostartfiles -nostdlib -fno-fp-protect
 				-Wl,--version-script,conftest.map
 		       1>&AS_MESSAGE_LOG_FD]);
     then
@@ -1423,7 +1423,7 @@ int _start (void) { return 42; }
 EOF
 if AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
 		   -fPIC -shared -o conftest.so conftest.c
-		   -nostartfiles -nostdlib
+		   -nostartfiles -nostdlib -fno-fp-protect
 		   -Wl,--enable-new-dtags,-z,nodelete 1>&AS_MESSAGE_LOG_FD])
 then
   libc_cv_z_nodelete=yes
@@ -1439,7 +1439,7 @@ int _start (void) { return 42; }
 EOF
 if AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
 			-fPIC -shared -o conftest.so conftest.c
-			-nostartfiles -nostdlib
+			-nostartfiles -nostdlib -fno-fp-protect
 			-Wl,--enable-new-dtags,-z,nodlopen 1>&AS_MESSAGE_LOG_FD])
 then
   libc_cv_z_nodlopen=yes
@@ -1455,7 +1455,7 @@ int _start (void) { return 42; }
 EOF
 if AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
 			-fPIC -shared -o conftest.so conftest.c
-			-nostartfiles -nostdlib
+			-nostartfiles -nostdlib -fno-fp-protect
 			-Wl,--enable-new-dtags,-z,initfirst 1>&AS_MESSAGE_LOG_FD])
 then
   libc_cv_z_initfirst=yes
@@ -1512,7 +1512,7 @@ END { print result }
 EOF
   AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
 		    -fPIC -shared -o conftest.so conftest.c
-		    -nostartfiles -nostdlib
+		    -nostartfiles -nostdlib -fno-fp-protect
 		    -Wl,-z,relro 1>&AS_MESSAGE_LOG_FD]) &&
   AC_TRY_COMMAND([$READELF -Wl conftest.so > conftest.ph]) &&
   AC_TRY_COMMAND([
@@ -1578,7 +1578,7 @@ int foo (void) { return bar (mumble); }
 EOF
 if AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
 			-fPIC -shared -o conftest.so conftest.c
-			-nostdlib -nostartfiles
+			-nostdlib -nostartfiles -fno-fp-protect
 			-Wl,-z,combreloc 1>&AS_MESSAGE_LOG_FD])
 then
 dnl The following test is a bit weak.  We must use a tool which can test
@@ -1694,7 +1694,7 @@ fi
 
 AC_CACHE_CHECK(linker output format, libc_cv_output_format, [dnl
 if libc_cv_output_format=`
-${CC-cc} -nostartfiles -nostdlib -Wl,--print-output-format 2>&AS_MESSAGE_LOG_FD`
+${CC-cc} -nostartfiles -nostdlib -fno-fp-protect -Wl,--print-output-format 2>&AS_MESSAGE_LOG_FD`
 then
   :
 else
@@ -1850,7 +1850,7 @@ __throw () {}
 EOF
 dnl No \ in command here because it ends up inside ''.
 if AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
-			    -nostdlib -nostartfiles -Wl,--no-whole-archive
+			    -nostdlib -nostartfiles -Wl,--no-whole-archive -fno-fp-protect
 			    -o conftest conftest.c 1>&AS_MESSAGE_LOG_FD]); then
   libc_cv_ld_no_whole_archive=yes
 else
@@ -1869,7 +1869,7 @@ __throw () {}
 EOF
 dnl No \ in command here because it ends up inside ''.
 if AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
-			    -nostdlib -nostartfiles -fexceptions
+			    -nostdlib -nostartfiles -fexceptions -fno-fp-protect
 			    -o conftest conftest.c 1>&AS_MESSAGE_LOG_FD]); then
   libc_cv_gcc_exceptions=yes
 else

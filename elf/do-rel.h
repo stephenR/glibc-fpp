@@ -45,7 +45,8 @@
    relocations; they should be set up to call _dl_runtime_resolve, rather
    than fully resolved now.  */
 
-auto inline void __attribute__ ((always_inline))
+//auto inline void __attribute__ ((always_inline))
+void
 elf_dynamic_do_Rel (struct link_map *map,
 		    ElfW(Addr) reladdr, ElfW(Addr) relsize,
 		    __typeof (((ElfW(Dyn) *) 0)->d_un.d_val) nrelative,

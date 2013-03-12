@@ -188,9 +188,15 @@
 # define internal_function	/* empty */
 #endif
 
+//#ifndef __ASSEMBLER__
+///* TODO: put this in __builtin_extract_return_addr */
+//extern void *fpp_protect_func_ptr (void *p);
+//#endif
+
 /* Determine the return address.  */
 #define RETURN_ADDRESS(nr) \
   __builtin_extract_return_addr (__builtin_return_address (nr))
+  //fpp_protect_func_ptr (__builtin_extract_return_addr (__builtin_return_address (nr)))
 
 /* When a reference to SYMBOL is encountered, the linker will emit a
    warning message MSG.  */
@@ -225,7 +231,7 @@
 
 #define libc_freeres_fn(name)	\
   static void name (void) __attribute_used__ __libc_freeres_fn_section;	\
-  text_set_element (__libc_subfreeres, name);				\
+  text_set_element_fpp_unprotected (__libc_subfreeres, name);				\
   static void name (void)
 
 /* A canned warning for sysdeps/stub functions.  */
@@ -308,10 +314,24 @@ for linking")
 # define _elf_set_element(set, symbol) \
   static const void *__elf_set_##set##_element_##symbol##__ \
     __attribute__ ((used, section (#set))) = &(symbol)
+
+# define _elf_set_element_fpp_unprotected(set, symbol)		  \
+  do{								  \
+    typedef void *hook_fp_t __attribute__((fpprotect_disable));	  \
+    static const hook_fp_t __elf_set_##set##_element_##symbol##__ \
+      __attribute__ ((used, section (#set))) = &(symbol);	  \
+  } while (0)
 #else
 # define _elf_set_element(set, symbol) \
   static const void *const __elf_set_##set##_element_##symbol##__ \
     __attribute__ ((used, section (#set))) = &(symbol)
+
+# define _elf_set_element_fpp_unprotected(set, symbol)		       \
+  do{								       \
+    typedef void * const hook_fp_t __attribute__((fpprotect_disable)); \
+    static const hook_fp_t __elf_set_##set##_element_##symbol##__      \
+    __attribute__ ((used, section (#set))) = &(symbol);		       \
+  } while (0)
 #endif
 
 /* Define SET as a symbol set.  This may be required (it is in a.out) to
@@ -767,7 +787,8 @@ for linking")
   void *name##_ifunc (void)						\
   {									\
     INIT_ARCH ();							\
-    __typeof (name) *res = expr;					\
+    typedef __typeof (name) *name_t __attribute__((fpprotect_disable));	\
+    name_t res = expr;							\
     return res;								\
   }									\
   __asm__ (".type " #name ", %gnu_indirect_function");
@@ -778,7 +799,8 @@ for linking")
   extern void *name##_ifunc (void) __asm__ (#name);			\
   void *name##_ifunc (void)						\
   {									\
-    __typeof (name) *res = expr;					\
+    typedef __typeof (name) *name_t __attribute__((fpprotect_disable));	\
+    name_t res = expr;							\
     return res;								\
   }									\
   __asm__ (".type " #name ", %gnu_indirect_function");

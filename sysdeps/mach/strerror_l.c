@@ -96,6 +96,6 @@ strerror_thread_freeres (void)
   free (last_value);
 }
 text_set_element (__libc_thread_subfreeres, strerror_thread_freeres);
-text_set_element (__libc_subfreeres, strerror_thread_freeres);
+text_set_element_fpp_unprotected (__libc_subfreeres, strerror_thread_freeres);
 # endif
 #endif

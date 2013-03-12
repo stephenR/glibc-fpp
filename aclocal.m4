@@ -123,7 +123,7 @@ int __start (void) { return 0; }
 $1
 EOF
 AS_IF([AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS -o conftest
-		       conftest.c -static -nostartfiles -nostdlib
+		       conftest.c -static -nostartfiles -nostdlib -fno-fp-protect
 		       1>&AS_MESSAGE_LOG_FD])],
       [$2], [$3])
 rm -f conftest*])

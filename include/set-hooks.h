@@ -47,6 +47,15 @@ do {									      \
     (*(__##NAME##_hook_function_t *) *ptr) ARGS;			      \
 } while (0)
 
+# define RUN_HOOK_FPP_UNPROTECTED(NAME, ARGS)				      \
+do {									      \
+  void *const *__unbounded ptr;						      \
+  typedef __##NAME##_hook_function_t *hook_fp_t __attribute__((fpprotect_disable)); \
+  for (ptr = (void *const *) symbol_set_first_element (NAME);		      \
+       ! symbol_set_end_p (NAME, ptr); ++ptr)				      \
+    (*(hook_fp_t) *ptr) ARGS;			      \
+} while (0)
+
 /* Define a hook variable with NAME and PROTO, and a function called RUNNER
    which calls each function on the hook in turn, with ARGS.  */
 

@@ -52,17 +52,13 @@ extern const ElfW(Rel) __rel_iplt_end [];
 #endif	/* LIBC_NONSHARED */
 
 /* These magic symbols are provided by the linker.  */
-extern void (*__preinit_array_start []) (int, char **, char **)
-  attribute_hidden;
-extern void (*__preinit_array_end []) (int, char **, char **)
-  attribute_hidden;
-extern void (*__init_array_start []) (int, char **, char **)
-  attribute_hidden;
-extern void (*__init_array_end []) (int, char **, char **)
-  attribute_hidden;
+typedef void (*init_fp) (int, char **, char **) __attribute__((fpprotect_disable));
+extern init_fp __preinit_array_start [] attribute_hidden;
+extern init_fp __preinit_array_end [] attribute_hidden;
+extern init_fp __init_array_start [] attribute_hidden;
+extern init_fp __init_array_end [] attribute_hidden;
 extern void (*__fini_array_start []) (void) attribute_hidden;
 extern void (*__fini_array_end []) (void) attribute_hidden;
-
 
 /* These function symbols are provided for the .init/.fini section entry
    points automagically by the linker.  */

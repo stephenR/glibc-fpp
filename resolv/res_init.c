@@ -649,6 +649,6 @@ res_thread_freeres (void)
   _res.options = 0;
 }
 text_set_element (__libc_thread_subfreeres, res_thread_freeres);
-text_set_element (__libc_subfreeres, res_thread_freeres);
+text_set_element_fpp_unprotected (__libc_subfreeres, res_thread_freeres);
 # endif
 #endif

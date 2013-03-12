@@ -344,15 +344,13 @@
    is too complicated here since we have no PC-relative addressing mode.  */
 #else
 # ifdef __ASSEMBLER__
-#  define PTR_MANGLE(reg, tmp) \
-     stc gbr,tmp; mov.l @(POINTER_GUARD,tmp),tmp; xor tmp,reg
-#  define PTR_MANGLE2(reg, tmp)	xor tmp,reg
-#  define PTR_DEMANGLE(reg, tmp)	PTR_MANGLE (reg, tmp)
-#  define PTR_DEMANGLE2(reg, tmp)	PTR_MANGLE2 (reg, tmp)
+#  define PTR_MANGLE(reg, tmp)
+#  define PTR_MANGLE2(reg, tmp)
+#  define PTR_DEMANGLE(reg, tmp)
+#  define PTR_DEMANGLE2(reg, tmp)
 # else
-#  define PTR_MANGLE(var) \
-     (var) = (void *) ((uintptr_t) (var) ^ THREAD_GET_POINTER_GUARD ())
-#  define PTR_DEMANGLE(var)	PTR_MANGLE (var)
+#  define PTR_MANGLE(var)
+#  define PTR_DEMANGLE(var)
 # endif
 #endif
 

@@ -29,6 +29,22 @@ extern void __libc_csu_irel (void);
 
 extern int __libc_multiple_libcs;
 
+extern void *fpp_protect_func_ptr (void *);
+
+#ifndef SHARED
+extern void (*__fini_array_start []) (void) attribute_hidden;
+extern void (*__fini_array_end []) (void) attribute_hidden;
+
+static void
+__fpp_protect_fini (void)
+{
+  size_t i = __fini_array_end - __fini_array_start;
+  while (i-- > 0)
+    __fini_array_start [i] = fpp_protect_func_ptr (__fini_array_start [i]);
+}
+#endif
+
+
 #include <tls.h>
 #ifndef SHARED
 # include <dl-osinfo.h>
@@ -66,14 +82,15 @@ uintptr_t __stack_chk_guard attribute_relro;
 # define MAIN_AUXVEC_PARAM
 #endif
 
-STATIC int LIBC_START_MAIN (int (*main) (int, char **, char **
-					 MAIN_AUXVEC_DECL),
+typedef int (*init_t)(int, char**, char** MAIN_AUXVEC_DECL) __attribute__((fpprotect_disable));
+
+STATIC int LIBC_START_MAIN (init_t main,
 			    int argc,
 			    char *__unbounded *__unbounded ubp_av,
 #ifdef LIBC_START_MAIN_AUXVEC_ARG
 			    ElfW(auxv_t) *__unbounded auxvec,
 #endif
-			    __typeof (main) init,
+			    init_t init,
 			    void (*fini) (void),
 			    void (*rtld_fini) (void),
 			    void *__unbounded stack_end)
@@ -84,12 +101,12 @@ STATIC int LIBC_START_MAIN (int (*main) (int, char **, char **
    is registered with __cxa_atexit.  This had the disadvantage that
    finalizers were called in more than one place.  */
 STATIC int
-LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
+LIBC_START_MAIN (init_t main,
 		 int argc, char *__unbounded *__unbounded ubp_av,
 #ifdef LIBC_START_MAIN_AUXVEC_ARG
 		 ElfW(auxv_t) *__unbounded auxvec,
 #endif
-		 __typeof (main) init,
+		 init_t init,
 		 void (*fini) (void),
 		 void (*rtld_fini) (void), void *__unbounded stack_end)
 {
@@ -153,19 +170,11 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 # endif
 #endif
 
-  /* Register the destructor of the dynamic linker if there is any.  */
-  if (__builtin_expect (rtld_fini != NULL, 1))
-    __cxa_atexit ((void (*) (void *)) rtld_fini, NULL, NULL);
-
 #ifndef SHARED
   /* Call the initializer of the libc.  This is only needed here if we
      are compiling for the static library in which case we haven't
      run the constructors in `_dl_start_user'.  */
   __libc_init_first (argc, argv, __environ);
-
-  /* Register the destructor of the program, if any.  */
-  if (fini)
-    __cxa_atexit ((void (*) (void *)) fini, NULL, NULL);
 
   /* Some security at this point.  Prevent starting a SUID binary where
      the standard file descriptors are not opened.  We have to do this
@@ -182,6 +191,23 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
 #endif
   if (init)
     (*init) (argc, argv, __environ MAIN_AUXVEC_PARAM);
+
+  rtld_fini = fpp_protect_func_ptr(rtld_fini);
+
+  /* Register the destructor of the dynamic linker if there is any.  */
+  if (__builtin_expect (rtld_fini != NULL, 1))
+    __cxa_atexit ((void (*) (void *)) rtld_fini, NULL, NULL);
+
+
+#ifndef SHARED
+  fini = fpp_protect_func_ptr(fini);
+
+  /* Register the destructor of the program, if any.  */
+  if (fini)
+    __cxa_atexit ((void (*) (void *)) fini, NULL, NULL);
+
+  __fpp_protect_fini();
+#endif
 
 #ifdef SHARED
   /* Auditing checkpoint: we have a new object.  */
