@@ -24,6 +24,8 @@
 
 #include "ucontext_i.h"
 
+#include <fpprotect.h>
+
 /* This implementation can handle any ARGC value but only
    normal integer parameters.
    makecontext sets up a stack and the registers for the
@@ -74,7 +76,8 @@ __makecontext (ucontext_t *ucp, void (*func) (void), int argc, ...)
   ucp->uc_mcontext.gregs[REG_RSP] = (uintptr_t) sp;
 
   /* Setup stack.  */
-  sp[0] = (uintptr_t) &__start_context;
+  fpp_unprotected_t start_context = &__start_context;
+  sp[0] = (uintptr_t) start_context;
   sp[idx_uc_link] = (uintptr_t) ucp->uc_link;
 
   va_start (ap, argc);

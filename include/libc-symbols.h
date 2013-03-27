@@ -188,11 +188,6 @@
 # define internal_function	/* empty */
 #endif
 
-//#ifndef __ASSEMBLER__
-///* TODO: put this in __builtin_extract_return_addr */
-//extern void *fpp_protect_func_ptr (void *p);
-//#endif
-
 /* Determine the return address.  */
 #define RETURN_ADDRESS(nr) \
   __builtin_extract_return_addr (__builtin_return_address (nr))

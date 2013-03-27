@@ -34,13 +34,14 @@
 
 #include "ucontext_i.h"
 
+#include <fpprotect.h>
+
 /* We do not globally define the SA_RESTORER flag so do it here.  */
 #define SA_RESTORER 0x04000000
 
 /* Using the hidden attribute here does not change the code but it
    helps to avoid warnings.  */
 extern void restore_rt (void) asm ("__restore_rt") attribute_hidden;
-
 
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
@@ -66,10 +67,10 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 			   oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
   if (oact && result >= 0)
     {
-      oact->sa_handler = koact.k_sa_handler;
+      oact->sa_handler = fpp_protect_func_ptr (koact.k_sa_handler);
       memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
       oact->sa_flags = koact.sa_flags;
-      oact->sa_restorer = koact.sa_restorer;
+      oact->sa_restorer = fpp_protect_func_ptr (koact.sa_restorer);
     }
   return result;
 }

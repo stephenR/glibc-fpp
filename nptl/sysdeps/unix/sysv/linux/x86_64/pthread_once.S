@@ -100,7 +100,9 @@ __pthread_once:
 	cfi_adjust_cfa_offset(8)
 
 .LcleanupSTART:
-	callq	*16(%rsp)
+	movq	16(%rsp), %rdi
+	callq	__fpp_verify@PLT
+	callq	*%rax
 .LcleanupEND:
 
 	/* Get the control variable address back.  */

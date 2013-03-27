@@ -22,14 +22,14 @@
 #include <bp-start.h>
 #include <bp-sym.h>
 
+#include <fpprotect.h>
+
 extern void __libc_init_first (int argc, char **argv, char **envp);
 #ifndef SHARED
 extern void __libc_csu_irel (void);
 #endif
 
 extern int __libc_multiple_libcs;
-
-extern void *fpp_protect_func_ptr (void *);
 
 #ifndef SHARED
 extern void (*__fini_array_start []) (void) attribute_hidden;

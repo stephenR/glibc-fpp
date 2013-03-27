@@ -326,8 +326,10 @@ typedef struct
 
 # define CALL_THREAD_FCT(descr) \
   ({ void *__res;							      \
-     asm volatile ("movq %%fs:%P2, %%rdi\n\t"				      \
-		   "callq *%%fs:%P1"					      \
+     asm volatile ("movq %%fs:%P1, %%rdi\n\t"				      \
+		   "callq __fpp_verify@PLT\n\t"				      \
+		   "movq %%fs:%P2, %%rdi\n\t"				      \
+		   "callq *%%rax"					      \
 		   : "=a" (__res)					      \
 		   : "i" (offsetof (struct pthread, start_routine)),	      \
 		     "i" (offsetof (struct pthread, arg))		      \

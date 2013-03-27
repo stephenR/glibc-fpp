@@ -20,6 +20,8 @@
 # error "Never include <bits/sigaction.h> directly; use <signal.h> instead."
 #endif
 
+typedef void (*sa_restorer_t) (void) __attribute__((fpprotect_disable));
+
 /* Structure describing the action to be taken when a signal arrives.  */
 struct sigaction
   {
@@ -46,7 +48,7 @@ struct sigaction
     int sa_flags;
 
     /* Restore handler.  */
-    void (*sa_restorer) (void);
+    sa_restorer_t sa_restorer;
   };
 
 /* Bits in `sa_flags'.  */

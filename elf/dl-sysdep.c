@@ -39,6 +39,8 @@
 #include <hp-timing.h>
 #include <tls.h>
 
+#include <fpprotect.h>
+
 #ifdef _DL_FIRST_PLATFORM
 # define _DL_FIRST_EXTRA (_DL_FIRST_PLATFORM + _DL_PLATFORMS_COUNT)
 #else
@@ -112,7 +114,8 @@ _dl_sysdep_start (void **start_argptr,
   DL_FIND_ARG_COMPONENTS (start_argptr, _dl_argc, INTUSE(_dl_argv), _environ,
 			  GLRO(dl_auxv));
 
-  user_entry = (ElfW(Addr)) ENTRY_POINT;
+  fpp_unprotected_t entry_point = ENTRY_POINT;
+  user_entry = entry_point;
   GLRO(dl_platform) = NULL; /* Default to nothing known about the platform.  */
 
   for (av = GLRO(dl_auxv); av->a_type != AT_NULL; set_seen (av++))

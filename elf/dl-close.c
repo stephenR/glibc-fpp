@@ -34,7 +34,7 @@
 
 
 /* Type of the constructor functions.  */
-typedef void (*fini_t) (void);
+typedef void (*fini_t) (void) __attribute__((fpprotect_disable));
 
 
 /* Special l_idx value used to indicate which objects remain loaded.  */
@@ -267,7 +267,7 @@ _dl_close_worker (struct link_map *map)
 
 	      /* Next try the old-style destructor.  */
 	      if (imap->l_info[DT_FINI] != NULL)
-		(*(void (*) (void)) DL_DT_FINI_ADDRESS
+		((fini_t) DL_DT_FINI_ADDRESS
 		 (imap, ((void *) imap->l_addr
 			 + imap->l_info[DT_FINI]->d_un.d_ptr))) ();
 	    }

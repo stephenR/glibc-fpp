@@ -68,6 +68,12 @@ ENTRY(__setcontext)
 	cfi_offset(%rsp,oRSP)
 	cfi_offset(%rip,oRIP)
 
+	movq	oRIP(%rdi), %rax
+	pushq	%rdi
+	movq	%rax, %rdi
+	callq	__fpp_verify@PLT
+	popq	%rdi
+
 	movq	oRSP(%rdi), %rsp
 	movq	oRBX(%rdi), %rbx
 	movq	oRBP(%rdi), %rbp
@@ -78,8 +84,7 @@ ENTRY(__setcontext)
 
 	/* The following ret should return to the address set with
 	getcontext.  Therefore push the address on the stack.  */
-	movq	oRIP(%rdi), %rcx
-	pushq	%rcx
+	pushq	%rax
 
 	movq	oRSI(%rdi), %rsi
 	movq	oRDX(%rdi), %rdx

@@ -24,7 +24,7 @@
 
 
 /* Type of the constructor functions.  */
-typedef void (*fini_t) (void);
+typedef void (*fini_t) (void) __attribute__((fpprotect_disable));
 
 
 void

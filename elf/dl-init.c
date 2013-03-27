@@ -21,7 +21,7 @@
 
 
 /* Type of the initializer.  */
-typedef void (*init_t) (int, char **, char **);
+typedef void (*init_t) (int, char **, char **) __attribute__((fpprotect_disable));
 
 #ifndef HAVE_INLINED_SYSCALLS
 /* Flag, nonzero during startup phase.  */

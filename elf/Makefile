@@ -47,9 +47,6 @@ CFLAGS-dl-iterate-phdr.c = $(uses-callbacks)
 
 include ../Makeconfig
 
-CFLAGS-.o += -fno-fp-protect
-CFLAGS-.os += -fno-fp-protect
-
 ifeq ($(unwind-find-fde),yes)
 routines += unwind-dw2-fde-glibc
 shared-only-routines += unwind-dw2-fde-glibc

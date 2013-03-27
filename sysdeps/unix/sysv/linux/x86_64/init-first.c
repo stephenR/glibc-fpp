@@ -21,6 +21,8 @@
 # include <dl-vdso.h>
 # include <bits/libc-vdso.h>
 
+# include <fpprotect.h>
+
 long int (*__vdso_clock_gettime) (clockid_t, struct timespec *)
   __attribute__ ((nocommon));
 strong_alias (__vdso_clock_gettime, __GI___vdso_clock_gettime attribute_hidden)
@@ -36,13 +38,13 @@ _libc_vdso_platform_setup (void)
 {
   PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
 
-  void *p = _dl_vdso_vsym ("__vdso_clock_gettime", &linux26);
+  void *p = fpp_protect_func_ptr (_dl_vdso_vsym ("__vdso_clock_gettime", &linux26));
   if (p == NULL)
     p = __syscall_clock_gettime;
   PTR_MANGLE (p);
   __GI___vdso_clock_gettime = p;
 
-  p = _dl_vdso_vsym ("__vdso_getcpu", &linux26);
+  p = fpp_protect_func_ptr (_dl_vdso_vsym ("__vdso_getcpu", &linux26));
   /* If the vDSO is not available we fall back on the old vsyscall.  */
 #define VSYSCALL_ADDR_vgetcpu	0xffffffffff600800
   if (p == NULL)

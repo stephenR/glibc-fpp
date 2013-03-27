@@ -50,8 +50,13 @@ ENTRY(__swapcontext)
 	movq	%r8, oR8(%rdi)
 	movq	%r9, oR9(%rdi)
 
-	movq	(%rsp), %rcx
-	movq	%rcx, oRIP(%rdi)
+	pushq	%rdi
+	pushq	%rsi
+	movq	0x10(%rsp), %rdi
+	callq	fpp_protect_func_ptr@PLT
+	popq	%rsi
+	popq	%rdi
+	movq	%rax, oRIP(%rdi)
 	leaq	8(%rsp), %rcx		/* Exclude the return address.  */
 	movq	%rcx, oRSP(%rdi)
 
@@ -88,6 +93,11 @@ ENTRY(__swapcontext)
 	fldenv	(%rcx)
 	ldmxcsr oMXCSR(%rsi)
 
+	movq	oRIP(%rsi), %rdi
+	pushq	%rsi
+	callq	__fpp_verify@PLT
+	popq	%rsi
+
 	/* Load the new stack pointer and the preserved registers.  */
 	movq	oRSP(%rsi), %rsp
 	movq	oRBX(%rsi), %rbx
@@ -99,8 +109,7 @@ ENTRY(__swapcontext)
 
 	/* The following ret should return to the address set with
 	getcontext.  Therefore push the address on the stack.  */
-	movq	oRIP(%rsi), %rcx
-	pushq	%rcx
+	pushq	%rax
 
 	/* Setup registers used for passing args.  */
 	movq	oRDI(%rsi), %rdi

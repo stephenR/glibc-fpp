@@ -43,6 +43,8 @@
 
 #include <assert.h>
 
+#include <fpprotect.h>
+
 /* Avoid PLT use for our local calls at startup.  */
 extern __typeof (__mempcpy) __mempcpy attribute_hidden;
 
@@ -134,7 +136,9 @@ struct rtld_global _rtld_global =
     {
       [LM_ID_BASE] = { ._ns_unique_sym_table
 		       = { .lock = _RTLD_LOCK_RECURSIVE_INITIALIZER } }
-    }
+    },
+    ._fpp_ptr_list = NULL,
+    ._fpp_defer_list = NULL
   };
 /* If we would use strong_alias here the compiler would see a
    non-hidden definition.  This would undo the effect of the previous
@@ -162,6 +166,8 @@ struct rtld_global_ro _rtld_global_ro attribute_relro =
     ._dl_pointer_guard = 1,
     ._dl_pagesize = EXEC_PAGESIZE,
     ._dl_inhibit_cache = 0,
+
+    ._fpp_region_list = NULL,
 
     /* Function pointers.  */
     ._dl_debug_printf = _dl_debug_printf,
@@ -934,7 +940,9 @@ dl_main (const ElfW(Phdr) *phdr,
   INTUSE(_dl_starting_up) = 1;
 #endif
 
-  if (*user_entry == (ElfW(Addr)) ENTRY_POINT)
+  fpp_unprotected_t entry_point = ENTRY_POINT;
+
+  if (*user_entry == (ElfW(Addr)) entry_point)
     {
       /* Ho ho.  We are not the program interpreter!  We are the program
 	 itself!  This means someone ran ld.so as a command.  Well, that

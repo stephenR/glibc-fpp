@@ -356,6 +356,8 @@ typedef void (*receiver_fct) (int, const char *, const char *);
    The `-ldl' library functions in <dlfcn.h> provide a simple
    user interface to run-time dynamic linking.  */
 
+struct ptr_region;
+struct jp_region;
 
 #ifndef SHARED
 # define EXTERN extern
@@ -519,6 +521,8 @@ struct rtld_global
     void *list[50];
   } *_dl_scope_free_list;
 #ifdef SHARED
+  struct ptr_region *_fpp_ptr_list;
+  struct defer_list *_fpp_defer_list;
 };
 # define __rtld_global_attribute__
 # ifdef IS_IN_rtld
@@ -704,6 +708,8 @@ struct rtld_global_ro
 #ifdef HAVE_DL_DISCOVER_OSVERSION
   _dl_discover_osversion_t _dl_discover_osversion;
 #endif
+
+  struct jp_region *_fpp_region_list;
 
   /* List of auditing interfaces.  */
   struct audit_ifaces *_dl_audit;

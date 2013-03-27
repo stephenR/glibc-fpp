@@ -27,6 +27,8 @@
 #include <tls.h>
 #include <dl-tlsdesc.h>
 
+typedef ElfW(Addr) (*rel_t) (void) __attribute__((fpprotect_disable));
+
 /* Return nonzero iff ELF header is compatible with the running host.  */
 static inline int __attribute__ ((unused))
 elf_machine_matches_host (const ElfW(Ehdr) *ehdr)
@@ -82,6 +84,8 @@ elf_machine_load_address (void)
   return addr;
 }
 
+typedef void (*resolve_t) (ElfW(Word)) __attribute__((fpprotect_disable));
+
 /* Set up the loaded object described by L so its unrelocated PLT
    entries will jump to the on-demand fixup code in dl-runtime.c.  */
 
@@ -118,7 +122,8 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
 	 end in this function.  */
       if (__builtin_expect (profile, 0))
 	{
-	  *(ElfW(Addr) *) (got + 2) = (ElfW(Addr)) &_dl_runtime_profile;
+	  resolve_t runtime_profile = _dl_runtime_profile;
+	  *(ElfW(Addr) *) (got + 2) = (ElfW(Addr)) runtime_profile;
 
 	  if (GLRO(dl_profile) != NULL
 	      && _dl_name_match_p (GLRO(dl_profile), l))
@@ -127,9 +132,12 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
 	    GL(dl_profile_map) = l;
 	}
       else
-	/* This function will get called to fix up the GOT entry indicated by
-	   the offset on the stack, and then jump to the resolved address.  */
-	*(ElfW(Addr) *) (got + 2) = (ElfW(Addr)) &_dl_runtime_resolve;
+	{
+	  /* This function will get called to fix up the GOT entry indicated by
+	     the offset on the stack, and then jump to the resolved address.  */
+	  resolve_t runtime_resolve = &_dl_runtime_resolve;
+	  *(ElfW(Addr) *) (got + 2) = (ElfW(Addr)) runtime_resolve;
+	}
     }
 
   if (l->l_info[ADDRIDX (DT_TLSDESC_GOT)] && lazy)
@@ -306,7 +314,7 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 			       0)
 	  && __builtin_expect (sym->st_shndx != SHN_UNDEF, 1)
 	  && __builtin_expect (!skip_ifunc, 1))
-	value = ((ElfW(Addr) (*) (void)) value) ();
+	value = ((rel_t) value) ();
 
       switch (r_type)
 	{
@@ -470,7 +478,7 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 #  endif
 	case R_X86_64_IRELATIVE:
 	  value = map->l_addr + reloc->r_addend;
-	  value = ((ElfW(Addr) (*) (void)) value) ();
+	  value = ((rel_t) value) ();
 	  *reloc_addr = value;
 	  break;
 	default:
@@ -532,7 +540,7 @@ elf_machine_lazy_rel (struct link_map *map,
     {
       ElfW(Addr) value = map->l_addr + reloc->r_addend;
       if (__builtin_expect (!skip_ifunc, 1))
-	value = ((ElfW(Addr) (*) (void)) value) ();
+	value = ((rel_t) value) ();
       *reloc_addr = value;
     }
   else
