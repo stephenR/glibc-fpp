@@ -130,6 +130,7 @@ struct rtld_global _rtld_global =
 #ifdef _LIBC_REENTRANT
     ._dl_load_lock = _RTLD_LOCK_RECURSIVE_INITIALIZER,
     ._dl_load_write_lock = _RTLD_LOCK_RECURSIVE_INITIALIZER,
+    ._dl_fpp_lock = _RTLD_LOCK_RECURSIVE_INITIALIZER,
 #endif
     ._dl_nns = 1,
     ._dl_ns =
@@ -926,6 +927,8 @@ dl_main (const ElfW(Phdr) *phdr,
     && defined __rtld_lock_default_lock_recursive
   GL(dl_rtld_lock_recursive) = rtld_lock_default_lock_recursive;
   GL(dl_rtld_unlock_recursive) = rtld_lock_default_unlock_recursive;
+  GLRO(fpp_rtld_lock_recursive) = rtld_lock_default_lock_recursive;
+  GLRO(fpp_rtld_unlock_recursive) = rtld_lock_default_unlock_recursive;
 #endif
 
   /* The explicit initialization here is cheaper than processing the reloc

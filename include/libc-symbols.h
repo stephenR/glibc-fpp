@@ -191,7 +191,6 @@
 /* Determine the return address.  */
 #define RETURN_ADDRESS(nr) \
   __builtin_extract_return_addr (__builtin_return_address (nr))
-  //fpp_protect_func_ptr (__builtin_extract_return_addr (__builtin_return_address (nr)))
 
 /* When a reference to SYMBOL is encountered, the linker will emit a
    warning message MSG.  */

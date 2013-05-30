@@ -1,10 +1,8 @@
 libc {
   GLIBC_2.0 {
-    region_list;
-    __fpp_deref;
-    __fpp_init;
-    __fpp_protect;
-    __fpp_verify;
-    fpp_protect_func_ptr;
+    __dl_fpp_region_list;
+    __dl_fpp_defer_list;
+    __dl_fpp_mutex_lock;
+    __dl_fpp_mutex_unlock;
   }
 }

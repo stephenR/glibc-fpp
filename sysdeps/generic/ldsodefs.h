@@ -357,7 +357,6 @@ typedef void (*receiver_fct) (int, const char *, const char *);
    user interface to run-time dynamic linking.  */
 
 struct ptr_region;
-struct jp_region;
 
 #ifndef SHARED
 # define EXTERN extern
@@ -426,6 +425,8 @@ struct rtld_global
      list of loaded objects while an object is added to or removed
      from that list.  */
   __rtld_lock_define_recursive (EXTERN, _dl_load_write_lock)
+
+  __rtld_lock_define_recursive (EXTERN, _dl_fpp_lock)
 
   /* Incremented whenever something may have been added to dl_loaded.  */
   EXTERN unsigned long long _dl_load_adds;
@@ -521,8 +522,9 @@ struct rtld_global
     void *list[50];
   } *_dl_scope_free_list;
 #ifdef SHARED
+  //__rtld_lock_define_recursive (, *_fpp_mutex);
   struct ptr_region *_fpp_ptr_list;
-  struct defer_list *_fpp_defer_list;
+  struct ptr_region *_fpp_defer_list;
 };
 # define __rtld_global_attribute__
 # ifdef IS_IN_rtld
@@ -571,6 +573,9 @@ typedef void *(*_dl_tls_get_addr_soft_t) (struct link_map *) __attribute__((fppr
 #ifdef HAVE_DL_DISCOVER_OSVERSION
 typedef int (*_dl_discover_osversion_t) (void) __attribute__((fpprotect_disable));
 #endif
+
+typedef void (*_fpp_rtld_lock_recursive_t) (void *) __attribute__((fpprotect_disable));
+typedef void (*_fpp_rtld_unlock_recursive_t) (void *) __attribute__((fpprotect_disable));
 
 struct rtld_global_ro
 {
@@ -709,7 +714,10 @@ struct rtld_global_ro
   _dl_discover_osversion_t _dl_discover_osversion;
 #endif
 
-  struct jp_region *_fpp_region_list;
+  _fpp_rtld_lock_recursive_t _fpp_rtld_lock_recursive;
+  _fpp_rtld_unlock_recursive_t _fpp_rtld_unlock_recursive;
+
+  struct ptr_region *_fpp_region_list;
 
   /* List of auditing interfaces.  */
   struct audit_ifaces *_dl_audit;

@@ -4,17 +4,19 @@
 
 extern int global;
 
+extern void *__fpp_deref (void *);
+
 static inline void *
 ifunc_sel (int (*f1) (void), int (*f2) (void), int (*f3) (void))
 {
  switch (global)
    {
    case 1:
-     return f1;
+     return __fpp_deref (f1);
    case -1:
-     return f2;
+     return __fpp_deref (f2);
    default:
-     return f3;
+     return __fpp_deref (f3);
    }
 }
 

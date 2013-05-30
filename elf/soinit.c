@@ -7,15 +7,19 @@
 # include <libc-internal.h>
 # include <stdlib.h>
 
-static void (*const __CTOR_LIST__[1]) (void)
+#include <fpprotect.h>
+
+typedef void (* const cdtor_t) (void) __attribute__((fpprotect_disable));
+
+static __CTOR_LIST__[1]
   __attribute__ ((used, section (".ctors")))
-  = { (void (*) (void)) -1 };
-static void (*const __DTOR_LIST__[1]) (void)
+  = { (fpp_unprotected_t) -1 };
+static __DTOR_LIST__[1]
   __attribute__ ((used, section (".dtors")))
-  = { (void (*) (void)) -1 };
+  = { (fpp_unprotected_t) -1 };
 
 static inline void
-run_hooks (void (*const list[]) (void))
+run_hooks (cdtor_t list[])
 {
   while (*++list)
     (**list) ();

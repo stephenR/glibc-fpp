@@ -23,9 +23,6 @@ subdir	:= fpprotect
 
 all:
 
-dist-headers := fpprotect.h
-headers := $(dist-headers)
-
 routines = fpprotect
 
 include ../Makeconfig
@@ -34,5 +31,3 @@ include ../Rules
 
 sLIBdir := $(shell echo $(slibdir) | sed 's,lib\(\|64\)$$,\\\\$$LIB,')
 
-# Extra dependencies
-#$(foreach o,$(all-object-suffixes),$(objpfx)malloc$(o)): arena.c hooks.c

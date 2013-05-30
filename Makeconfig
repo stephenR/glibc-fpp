@@ -480,7 +480,7 @@ link-libc = -Wl,-rpath-link=$(rpath-link) \
 	    $(common-objpfx)$(patsubst %,$(libtype.oS),c) \
 	    $(as-needed) $(common-objpfx)elf/ld.so $(no-as-needed) $(gnulib)
 # This is how to find at build-time things that will be installed there.
-rpath-dirs = math elf dlfcn nss nis rt resolv crypt
+rpath-dirs = math elf dlfcn nss nis rt resolv crypt ../../gcc/install/lib64
 rpath-link = \
 $(common-objdir):$(subst $(empty) ,:,$(patsubst ../$(subdir),.,$(rpath-dirs:%=$(common-objpfx)%)))
 elfobjdir := $(patsubst ../$(subdir),.,$(common-objpfx)elf)

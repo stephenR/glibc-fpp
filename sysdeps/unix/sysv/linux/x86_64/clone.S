@@ -110,7 +110,7 @@ L(thread_start):
 
 	/* Set up arguments for the function call.  */
 	popq	%rdi		/* Function to call.  */
-	call	HIDDEN_JUMPTARGET (__fpp_verify)
+	call	__fpp_verify@PLT
 	popq	%rdi		/* Argument.  */
 	call	*%rax
 	/* Call exit with return value from function call. */

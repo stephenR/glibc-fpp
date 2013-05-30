@@ -36,10 +36,14 @@ ENTRY (sched_getcpu)
 	addq	%fs:0, %rdx
 
 #ifdef SHARED
+	pushq	%rdx
+	pushq	%rsi
 	pushq	%rdi
 	movq	__vdso_getcpu(%rip), %rdi
 	callq	__fpp_verify@PLT
 	popq	%rdi
+	popq	%rsi
+	popq	%rdx
 	callq	*%rax
 #else
 # ifdef __NR_getcpu
