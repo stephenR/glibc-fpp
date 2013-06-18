@@ -206,6 +206,7 @@ LIBC_START_MAIN (init_t main,
   if (fini)
     __cxa_atexit ((void (*) (void *)) fini, NULL, NULL);
 
+  /* TODO why do we need this, why is fini_array readable? */
   __fpp_protect_fini();
 #endif
 

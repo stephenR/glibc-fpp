@@ -55,6 +55,7 @@ __sysv_signal (sig, handler)
   if (__sigaction (sig, &act, &oact) < 0)
     return SIG_ERR;
 
+  /* TODO free fpp*/
   return oact.sa_handler;
 }
 

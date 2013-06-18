@@ -9,6 +9,7 @@
 
 #include <fpprotect.h>
 
+/* TODO: still needed? The compiler should ignore variables in the .{c,d}tors sections */
 typedef void (* const cdtor_t) (void) __attribute__((fpprotect_disable));
 
 static __CTOR_LIST__[1]

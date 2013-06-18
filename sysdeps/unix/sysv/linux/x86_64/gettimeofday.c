@@ -39,6 +39,7 @@ asm (".type __gettimeofday, %gnu_indirect_function");
 /* This is doing "libc_hidden_def (__gettimeofday)" but the compiler won't
    let us do it in C because it doesn't know we're defining __gettimeofday
    here in this file.  */
+/* TODO protect this */
 asm (".globl __GI___gettimeofday\n"
      "__GI___gettimeofday = __gettimeofday");
 
