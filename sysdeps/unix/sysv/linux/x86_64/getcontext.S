@@ -50,7 +50,7 @@ ENTRY(__getcontext)
 
 	pushq	%rdi
 	movq	8(%rsp), %rdi
-	callq	fpp_protect_func_ptr@PLT
+	callq	fpp_protect_func_ptr_perm@PLT
 	popq	%rdi
 	movq	%rax, oRIP(%rdi)
 	leaq	8(%rsp), %rcx		/* Exclude the return address.  */

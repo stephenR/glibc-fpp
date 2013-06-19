@@ -53,7 +53,7 @@ ENTRY(__swapcontext)
 	pushq	%rdi
 	pushq	%rsi
 	movq	0x10(%rsp), %rdi
-	callq	fpp_protect_func_ptr@PLT
+	callq	fpp_protect_func_ptr_perm@PLT
 	popq	%rsi
 	popq	%rdi
 	movq	%rax, oRIP(%rdi)
