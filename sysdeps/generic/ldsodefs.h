@@ -72,7 +72,7 @@ extern void *fpp_protect_func_ptr(void *p);
 # ifndef IS_IN_rtld
 #  define DL_SYMBOL_ADDRESS(map, ref) \
  (void *) (ELFW(ST_TYPE) (ref->st_info) == STT_FUNC ? \
- fpp_protect_func_ptr((void *) (LOOKUP_VALUE_ADDRESS (map) + ref->st_value)) : \
+ fpp_protect_func_ptr_perm((void *) (LOOKUP_VALUE_ADDRESS (map) + ref->st_value)) : \
  LOOKUP_VALUE_ADDRESS (map) + ref->st_value)
 #  define DL_SYMBOL_ADDRESS_NO_FPP(map, ref) \
  (void *) (LOOKUP_VALUE_ADDRESS (map) + ref->st_value)
