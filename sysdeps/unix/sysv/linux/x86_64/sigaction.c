@@ -67,10 +67,10 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 			   oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
   if (oact && result >= 0)
     {
-      oact->sa_handler = fpp_protect_func_ptr (koact.k_sa_handler);
+      oact->sa_handler = fpp_protect_func_ptr_perm (koact.k_sa_handler);
       memcpy (&oact->sa_mask, &koact.sa_mask, sizeof (sigset_t));
       oact->sa_flags = koact.sa_flags;
-      oact->sa_restorer = fpp_protect_func_ptr (koact.sa_restorer);
+      oact->sa_restorer = fpp_protect_func_ptr_perm (koact.sa_restorer);
     }
   return result;
 }
