@@ -62,8 +62,7 @@ typedef struct link_map *lookup_t;
 #define LOOKUP_VALUE(map) map
 #define LOOKUP_VALUE_ADDRESS(map) ((map) ? (map)->l_addr : 0)
 
-extern void *__fpp_get_addr(void *p);
-extern void *fpp_protect_func_ptr(void *p);
+extern void *fpp_protect_func_ptr_perm(void *p);
 
 /* On some architectures a pointer to a function is not just a pointer
    to the actual code of the function but rather an architecture
